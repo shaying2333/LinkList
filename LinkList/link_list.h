@@ -60,11 +60,12 @@ public:
 			return *this;
 		}
 		iterator operator++(int) {
+			iterator Temp = *this;
 			if (ptr == nullptr || ptr->nxt == nullptr) {
 				IndexOutOfRange();
 			}
 			ptr = ptr->nxt;
-			return ptr->last;
+			return Temp;
 		}
 		iterator operator+(size_t cnt) {
 			iterator Tmp = *this;
@@ -111,7 +112,7 @@ public:
 			return other.ptr != ptr;
 		}
 		bool operator==(const iterator& other) const {
-			return other.ptr != ptr;
+			return other.ptr == ptr;
 		}
 		T& operator* () {
 			if (ptr == nullptr) {
@@ -126,13 +127,13 @@ public:
 private:
 	friend class iterator;
 	// notice: Iter_end is always the next of Iter_back except for the list is empty
-	iterator Iter_begin = nullptr, Iter_back = nullptr, Iter_end = new Node<T>();
+	iterator Iter_end = new Node<T>();
+	iterator Iter_begin = Iter_end, Iter_back = Iter_end;
 	// the length of the list
 	size_t cnt = 0;
 public:
 	LinkList() {}
 	LinkList(initializer_list<T> lst) {
-		size_t cnt = sizeof(lst) / sizeof(T);
 		for (const T& Elem : lst) {
 			push_back(Elem);
 		}
@@ -155,7 +156,7 @@ public:
 	// append element to the back of the list
 	void push_back(const T& val) {
 		Node<T>* nxt = new Node<T>(val);
-		if (Iter_back.ptr == nullptr || Iter_begin.ptr == nullptr) {
+		if (Iter_back == Iter_end || Iter_begin == Iter_end) {
 			cnt = 1;
 			Iter_back = nxt;
 			Iter_begin = nxt;
@@ -166,7 +167,7 @@ public:
 			Iter_back.ptr = nxt;
 			cnt++;
 		}
-		if (Iter_back.ptr != nullptr) {
+		if (Iter_back != Iter_end) {
 			Iter_back.ptr->nxt = Iter_end.ptr;
 			Iter_end.ptr->last = Iter_back.ptr;
 		}
@@ -174,7 +175,7 @@ public:
 	// push element to the front of the list
 	void push_front(const T& val) {
 		Node<T>* nxt = new Node<T>(val);
-		if (Iter_back.ptr == nullptr || Iter_begin.ptr == nullptr) {
+		if (Iter_back == Iter_end || Iter_begin == Iter_end) {
 			cnt = 1;
 			Iter_back.ptr = nxt;
 			Iter_begin.ptr = nxt;
@@ -206,27 +207,42 @@ public:
 	// not implemented
 	// return the value of the indexed node of the list
 	T& operator[](const size_t& Idx) {
-		throw new exception("This method hasn't been implemented.");
+		return *(begin() + Idx);
 	}
 	// not implemented
 	// the copy construct method of the class
 	LinkList(const LinkList& other) {
-		throw new exception("This method hasn't been implemented.");
+		for (const T& Elem : other) {
+			push_back(Elem);
+		}
 	}
 	// not implemented
 	// copy the other list to this list
 	// return *this;
 	LinkList& operator=(const LinkList& other) {
-		throw new exception("This method hasn't been implemented.");
+		clear();
+		for (const T& Elem : other) {
+			push_back(Elem);
+		}
 	}
 	// not implemented
 	// clear the list
 	void clear() {
-		throw new exception("This method hasn't been implemented.");
+		for (; Iter_begin != Iter_end; ) {
+			Node<T>* cur = Iter_begin.ptr;
+			Iter_begin++;
+			delete cur;
+		}
+		cnt = 0;
+		Iter_end.ptr->nxt = nullptr;
+		Iter_end.ptr->last = nullptr;
+		Iter_begin = Iter_end;
+		Iter_back = Iter_end;
 	}
 	// not implemented
 	// deconstruct the object
 	virtual ~LinkList() {
-		// throw new exception("This method hasn't been implemented.");
+		clear();
+		delete Iter_end.ptr;
 	}
 };
