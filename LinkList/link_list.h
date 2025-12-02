@@ -123,7 +123,7 @@ public:
 		bool operator==(const iterator& other) const {
 			return other.ptr == ptr;
 		}
-		// decide whether two iterators belong to the same list
+		// Decide whether two iterators belong to the same list.
 		bool operator&(const iterator& other) const {
 			return other.master == master;
 		}
